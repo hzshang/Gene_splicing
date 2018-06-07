@@ -3,6 +3,6 @@
 
 #define KEY_TYPE void*
 
-void sort(KEY_TYPE*,size_t t,int (*cmp)(KEY_TYPE,KEY_TYPE));
+void sort(KEY_TYPE*,size_t t,int (*cmp)(KEY_TYPE,KEY_TYPE),int);
 
 #endif

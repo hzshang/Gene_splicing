@@ -20,9 +20,9 @@ int cmp_str(void* x,void *y){
 }
 
 int cmp_len(void *a,void *b){
-	int ret=((unit*)a)->len - ((unit*)b)->len;
+	int ret=((unit*)b)->len - ((unit*)a)->len;
 	if(!ret){
-		ret=a-b;
+		ret=b-a;
 	}
 	if(ret==0){
 		return 0;
@@ -73,7 +73,6 @@ void update_len(unit *v){
 		unit *tmp=v->parent.list[i];
 		size_t t_len=sdslen(tmp->p1)+v->len-(K-2);
 		if(t_len > tmp->len){
-			// tmp->next=v;
 			tmp->len=t_len;
 			update_len(tmp);
 		}

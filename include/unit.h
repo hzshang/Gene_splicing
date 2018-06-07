@@ -19,14 +19,9 @@ struct _unit{
     sds p1;
     sds p2;
     vector parent;
-    /* 使用优先队列保存子节点*/
     vector child;
-    struct _unit *next;
-    // size_t out;
-
     size_t len;
     int flag;
-    
     int confidience;
 };
 

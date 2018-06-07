@@ -24,7 +24,7 @@ typedef struct {
 
 
 BR_Tree tree;
-BR_Tree pool;
+vector pool;
 
 size_t count;
 char *str1;
@@ -108,7 +108,7 @@ unit* find_next_child(unit *e){
     unit *dev=NULL;
     for(size_t i=0;i<e->child.size;i++){
         dev=(unit*)e->child.list[i];
-        if(dev->flag==NOPASSED){
+        if(dev->flag == NOPASSED){
             break;
         }
     }
@@ -137,6 +137,7 @@ void find_path(unit* e){
         reverse(dev,s_tmp2,len);
         puts(dev);
         free(dev);
+
         sdsfree(s_tmp1);
         sdsfree(s_tmp2);
     }
@@ -146,7 +147,7 @@ int main(int argc, char const *argv[])
 {
     load_file();
     init_tree(&tree,cmp_str);
-    init_tree(&pool,cmp_len);
+    init_vector(&pool);
 
 
     off_t pc=0;
@@ -177,7 +178,7 @@ int main(int argc, char const *argv[])
 
     fprintf(stderr,"load edges finish\n");
     count = 0;
-    
+    sort(pool.list,pool.size,cmp_len,1);
     for(size_t i=0;i<pool.size;i++){
         find_path((unit*)pool.list[i]);
     }
