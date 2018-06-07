@@ -6,6 +6,8 @@
 
 #define K 30
 #define FRAG_LEN 100
-#define THRE_HOLD 4000
-#define MAX_DEEP 17
+
+
+
+
 #endif

@@ -87,7 +87,7 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
             dev1->confidience++;
         }else{
             insert_key(&tree,dev1);
-            vector_push(&pool,dev1);
+            insert_key(&pool,dev1);
         }
 
         tmp=key_exist(&tree,dev2);
@@ -97,36 +97,27 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
             dev2->confidience++;
         }else{
             insert_key(&tree,dev2);
-            vector_push(&pool,dev2);
+            insert_key(&pool,dev2);
         }
         add_edge(dev1,dev2);
     }
 }
 
 
-unit* find_next_child(unit *e){
-    unit *dev=NULL;
-    for(size_t i=0;i<e->child.size;i++){
-        dev=(unit*)e->child.list[i];
-        if(dev->flag==NOPASSED){
-            break;
-        }
-    }
-    return dev;
-}
+
 
 void find_path(unit* e){
     if(e->flag==NOPASSED){
         sds s_tmp1=sdsdup(e->p1);
         sds s_tmp2=sdsdup(e->p2);
+        unit *tmp=e->next;
+        set_flag_passed(e);
 
-        e->flag=PASSED;
-        unit *tmp=find_next_child(e);
         while(tmp){
-            tmp->flag=PASSED;
             s_tmp1=sdscat(s_tmp1,&tmp->p1[K-2]);
             s_tmp2=sdscat(s_tmp2,&tmp->p2[K-2]);
-            tmp=find_next_child(tmp);
+            set_flag_passed(tmp);
+            tmp=tmp->next;
         }
 
         size_t len=sdslen(s_tmp1);
@@ -177,9 +168,9 @@ int main(int argc, char const *argv[])
 
     fprintf(stderr,"load edges finish\n");
     count = 0;
-    
-    for(size_t i=0;i<pool.size;i++){
-        find_path((unit*)pool.list[i]);
+    while(pool.root!=pool.end){
+        unit* tmp=tree_max_key(&pool);
+        find_path(tmp);
     }
     return 0;
 }

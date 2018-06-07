@@ -22,6 +22,7 @@ int delete_key(BR_Tree *tree, KEY_TYPE key) {
         switch(tree->cmp(key,temp->key)){
             case 0:
                 delete_node(tree, temp);
+                free(temp);
                 ret = 1;
                 break;
             case 1:
@@ -52,6 +53,15 @@ KEY_TYPE key_exist(BR_Tree *tree,KEY_TYPE key){
     }
     return ret;
 }
+
+KEY_TYPE tree_min_key(BR_Tree *tree){
+    return tree_min(tree,tree->root)->key;
+}
+KEY_TYPE tree_max_key(BR_Tree *tree){
+    return tree_max(tree,tree->root)->key;
+}
+
+
 
 static void delete_node(BR_Tree *tree, Node e) {
     Node y = e;
@@ -269,3 +279,12 @@ static Node tree_min(BR_Tree* tree, Node a) {
     }
     return a;
 }
+
+static Node tree_max(BR_Tree* tree, Node a) {
+    while(a->right != tree->end) {
+        a = a->right;
+    }
+    return a;
+}
+
+
