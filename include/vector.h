@@ -14,4 +14,6 @@ void init_vector(vector *);
 void vector_push(vector *,TYPE);
 void delete_vector(vector *);
 void shrink_vector(vector *v);
+void insert_vector(vector *v, TYPE key,int(*cmp)(TYPE,TYPE));
+
 #endif

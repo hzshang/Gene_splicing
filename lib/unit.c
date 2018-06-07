@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <config.h>
+#include <vector.h>
 
-int cmp(unit* a,unit *b){
+int cmp_str(void* x,void *y){
+	unit *a=x;
+	unit *b=y;
 	int ret=strcmp(a->p1,b->p1);
 	if(!ret){
 		ret=strcmp(a->p2,b->p2);
@@ -16,48 +19,74 @@ int cmp(unit* a,unit *b){
 	}
 }
 
+int cmp_len(void *a,void *b){
+	int ret=((unit*)a)->len - ((unit*)b)->len;
+	if(!ret){
+		ret=a-b;
+	}
+	if(ret==0){
+		return 0;
+	}else{
+		return ret>0?1:-1;
+	}
+}
+
+
 void init_unit(unit* dev){
 	dev->p1=sdsempty();
 	dev->p2=sdsempty();
-	init_vector(&dev->next);
-	dev->in=0;
-	dev->flag=NOPASSED;
-	dev->best=0;
+	init_vector(&dev->parent);
+	init_vector(&dev->child);
 	dev->len=0;
+	dev->flag=NOPASSED;
+	dev->confidience=1;
 }
 
 void add_edge(unit* src,unit* dst){
-	for(int i=0;i<src->next.size;i++){
-		if(!cmp(src->next.list[i],dst)){
+	for(int i=0;i<dst->parent.size;i++){
+		if(!cmp_str(src,dst->parent.list[i])){
 			// don't add same unit because the possibilty equals 0 almost
 			return;
 		}
 	}
-	vector_push(&src->next,dst);
-	dst->in++;
-	if( dst->len+src->len-(K-2) > src->len){
-		src->best=dst;
-		src->len+=dst->len-(K-2);
-	}
+	vector_push(&dst->parent,src);
+	insert_vector(&src->child,dst,cmp_len);
 
+	size_t t_len=sdslen(src->p1)+dst->len-(K-2);
+	if( t_len > src->len){
+		src->len=t_len;
+		update_len(src);
+	}
 }
 
 void delete_unit(unit* v){
 	sdsfree(v->p1);
 	sdsfree(v->p2);
-	delete_vector(&v->next);
+	v->p1=0;
+	v->p2=0;
+	delete_vector(&v->parent);
 	free(v);
 }
 
-
-void append_str(unit *src,char *str1,char *str2){
-	size_t len=strlen(str1);
-	append_nchar(src,str1,str2,len);
+void update_len(unit *v){
+	for(size_t i=0;i<v->parent.size;i++){
+		unit *tmp=v->parent.list[i];
+		size_t t_len=sdslen(tmp->p1)+v->len-(K-2);
+		if(t_len > tmp->len){
+			// tmp->next=v;
+			tmp->len=t_len;
+			update_len(tmp);
+		}
+	}
 }
 
-void append_nchar(unit *src,char *str1,char*str2,size_t len){
+void append_str(unit *src,char *str1,char *str2){
+	src->p1=sdscat(src->p1,str1);
+	src->p2=sdscat(src->p2,str2);
+}
+
+void append_nchar(unit *src,char *str1,char *str2,size_t len){
 	src->p1=sdscatlen(src->p1,str1,len);
 	src->p2=sdscatlen(src->p2,str2,len);
-	src->len+=len;
 }
 

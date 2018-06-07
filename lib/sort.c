@@ -2,34 +2,6 @@
 #include <sort.h>
 #define MAX 0x7FFFFFFFFFFFFF
 #define MAX_SIZE 1000
-// void swap(KEY_TYPE *a,KEY_TYPE *b){
-//     KEY_TYPE c=*a;
-//     *a=*b;
-//     *b=c;
-// }
-
-// void heap_init(KEY_TYPE* root,size_t index,size_t size,int(*cmp)(KEY_TYPE,KEY_TYPE)){
-//     size_t max;
-//     if(2*index+1 < size && cmp(root[index],root[2*index+1])<= 0){
-//         max=2*index+1;
-//     }else{
-//         max=index;
-//     }
-//     if(2*index+2 < size && cmp(root[max],root[2*index+2])<= 0){
-//         max=2*index+2;
-//     }
-//     if(max != index){
-//         swap(root+index,root+max);
-//         heap_init(root,max,size,cmp);
-//     }
-// }
-
-// void sort(KEY_TYPE* array,size_t size,int (*cmp)(KEY_TYPE,KEY_TYPE)){
-//     for(int i=size-1;i>=0;i--){
-//         heap_init(array,i,size,cmp);
-//     }
-// }
-
 
 void merge(KEY_TYPE *array,size_t begin,size_t mid,size_t end,int(*cmp)(KEY_TYPE,KEY_TYPE)){
     KEY_TYPE* L=(KEY_TYPE*)malloc(sizeof(KEY_TYPE)*(mid-begin));

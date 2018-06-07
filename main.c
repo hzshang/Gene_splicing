@@ -24,9 +24,9 @@ typedef struct {
 
 
 BR_Tree tree;
-vector pool;
+BR_Tree pool;
+
 size_t count;
-// int flag;
 char *str1;
 char *str2;
 
@@ -75,13 +75,16 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
         init_unit(dev2);
 
         append_nchar(dev1,p->s1+i,p->s2+i,k-1);
+        dev1->len=k-1;
         append_nchar(dev2,p->s1+i+1,p->s2+i+1,k-1);
+        dev2->len=k-1;
 
         unit* tmp;
         tmp=key_exist(&tree,dev1);
         if(tmp){
             delete_unit(dev1);
             dev1=tmp;
+            dev1->confidience++;
         }else{
             insert_key(&tree,dev1);
             vector_push(&pool,dev1);
@@ -91,6 +94,7 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
         if(tmp){
             delete_unit(dev2);
             dev2=tmp;
+            dev2->confidience++;
         }else{
             insert_key(&tree,dev2);
             vector_push(&pool,dev2);
@@ -99,25 +103,51 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
     }
 }
 
-void combine(unit *v){
-    if(v->next.size==1 && ((unit*)v->next.list[0])->in ==1){
-        unit* tmp=v->next.list[0];
-        delete_key(&tree,tmp);
-        combine(tmp);
-        delete_key(&tree,v);
-        append_str(v,&tmp->p1[K-2],&tmp->p2[K-2]);
-        v->next=tmp->next;
-        v->best=tmp->best;
-        v->len+=tmp->len-(K-2);
-        insert_key(&tree,v);
+
+unit* find_next_child(unit *e){
+    unit *dev=NULL;
+    for(size_t i=0;i<e->child.size;i++){
+        dev=(unit*)e->child.list[i];
+        if(dev->flag==NOPASSED){
+            break;
+        }
+    }
+    return dev;
+}
+
+void find_path(unit* e){
+    if(e->flag==NOPASSED){
+        sds s_tmp1=sdsdup(e->p1);
+        sds s_tmp2=sdsdup(e->p2);
+
+        e->flag=PASSED;
+        unit *tmp=find_next_child(e);
+        while(tmp){
+            tmp->flag=PASSED;
+            s_tmp1=sdscat(s_tmp1,&tmp->p1[K-2]);
+            s_tmp2=sdscat(s_tmp2,&tmp->p2[K-2]);
+            tmp=find_next_child(tmp);
+        }
+
+        size_t len=sdslen(s_tmp1);
+        printf(">frag_%lu\r\n",count++);
+        puts(s_tmp1);
+        printf(">frag_%lu\r\n",count++);
+        char *dev=(char*)malloc(sizeof(char)*len);
+        reverse(dev,s_tmp2,len);
+        puts(dev);
+        free(dev);
+        sdsfree(s_tmp1);
+        sdsfree(s_tmp2);
     }
 }
 
 int main(int argc, char const *argv[])
 {
     load_file();
-    init_tree(&tree);
-    init_vector(&pool);
+    init_tree(&tree,cmp_str);
+    init_tree(&pool,cmp_len);
+
 
     off_t pc=0;
     off_t npc=0;
@@ -146,52 +176,12 @@ int main(int argc, char const *argv[])
     }
 
     fprintf(stderr,"load edges finish\n");
-
-    size_t sum=0;
+    count = 0;
+    
     for(size_t i=0;i<pool.size;i++){
-        if(key_exist(&tree,pool.list[i])){
-            combine(pool.list[i]);
-        }else{
-            pool.list[i]=0;
-            sum++;
-        }
+        find_path((unit*)pool.list[i]);
     }
-
-    /* 开始遍历 */
-    sort((unit**)pool.list,pool.size,compare_node);
-    pool.size-=sum;
-    shrink_vector(&pool);
-
-    for(size_t i=0;i<pool.size;i++){
-        unit *tmp=(unit*)pool.list[i];
-        fprintf(stderr, "rand:%lu\n",i);
-        if(tmp->next.size==0){
-            // output signal node
-            printf(">frag_%lu/0\n",count);
-            puts(tmp->p1);
-            printf(">frag_%lu/1\n",count++);
-            puts(tmp->p2);
-            pool.list[i]=0;
-            delete_key(&tree,tmp);
-        }else{
-            //find max path
-            sds str_1=sdsempty();
-            sds str_2=sdsempty();
-            // flag=1;
-            find_path(&str_1,&str_2,tmp,MAX_DEEP);
-            sdsfree(str_1);
-            sdsfree(str_2);
-        }
-    }
-
     return 0;
 }
-
-
-
-
-
-
-
 
 

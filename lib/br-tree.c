@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <unit.h>
 
-void init_tree(BR_Tree* tree) {
+void init_tree(BR_Tree* tree,int (*cmp)(KEY_TYPE,KEY_TYPE)) {
     tree->end = (Node)malloc(sizeof(struct _Node));
     tree->end->color = BLACK;
     tree->root = tree->end;
+    tree->cmp=cmp;
 }
 
 int insert_key(BR_Tree *tree, KEY_TYPE key) {
@@ -18,7 +19,7 @@ int delete_key(BR_Tree *tree, KEY_TYPE key) {
     Node temp = tree->root;
     int ret = 0;
     while(temp != tree->end && !ret) {
-        switch(cmp(key,temp->key)){
+        switch(tree->cmp(key,temp->key)){
             case 0:
                 delete_node(tree, temp);
                 ret = 1;
@@ -37,7 +38,7 @@ KEY_TYPE key_exist(BR_Tree *tree,KEY_TYPE key){
     Node temp = tree->root;
     KEY_TYPE ret = 0;
     while(temp != tree->end && !ret) {
-        switch(cmp(key,temp->key)){
+        switch(tree->cmp(key,temp->key)){
             case 0:
                 ret = temp->key;
                 break;
@@ -142,7 +143,7 @@ static int insert_node(BR_Tree *tree, Node e) {
     Node y = tree->end;
     while(temp != tree->end) {
         y = temp;
-        switch(cmp(e->key,temp->key)){
+        switch(tree->cmp(e->key,temp->key)){
             case 0:
                 return 0;
                 break;
@@ -159,7 +160,7 @@ static int insert_node(BR_Tree *tree, Node e) {
     e->color = RED;
     if(y == tree->end) {
         tree->root = e;
-    } else if(cmp(e->key, y->key)==-1) {
+    } else if(tree->cmp(e->key, y->key)==-1) {
         y->left = e;
     } else {
         y->right = e;
