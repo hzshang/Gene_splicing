@@ -118,28 +118,17 @@ unit* find_next_child(unit *e){
 void find_path(unit* e){
     if(e->flag==NOPASSED){
         sds s_tmp1=sdsdup(e->p1);
-        sds s_tmp2=sdsdup(e->p2);
-
         e->flag=PASSED;
         unit *tmp=find_next_child(e);
         while(tmp){
             tmp->flag=PASSED;
             s_tmp1=sdscat(s_tmp1,&tmp->p1[K-2]);
-            s_tmp2=sdscat(s_tmp2,&tmp->p2[K-2]);
             tmp=find_next_child(tmp);
         }
 
-        size_t len=sdslen(s_tmp1);
         printf(">frag_%lu\r\n",count++);
         puts(s_tmp1);
-        printf(">frag_%lu\r\n",count++);
-        char *dev=(char*)malloc(sizeof(char)*len);
-        reverse(dev,s_tmp2,len);
-        puts(dev);
-        free(dev);
-
         sdsfree(s_tmp1);
-        sdsfree(s_tmp2);
     }
 }
 

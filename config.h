@@ -1,11 +1,24 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define FILE1 "data/data1/short_1.fasta"
-#define FILE2 "data/data1/short_2.fasta"
+#ifdef DATA1
+// DATA1 config
+// #define FILE1 "data/data1/short_1.fasta"
+// #define FILE2 "data/data1/short_2.fasta"
+#define FILE1 "log"
+#define FILE2 "log"
 
 #define K 30
 #define FRAG_LEN 100
-#define THRE_HOLD 4000
-#define MAX_DEEP 17
+#define pair_distance 500
+#elif DATA2
+// DATA2 config
+
+#elif DATA3
+// DATA3 config
+
+#elif DATA4
+// DATA4 config
+
+#endif
 #endif
