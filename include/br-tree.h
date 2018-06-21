@@ -37,11 +37,16 @@ static void fixup_delete_node(BR_Tree *,Node);
 static int insert_node(BR_Tree *,Node);
 static void delete_node(BR_Tree *,Node);
 static Node tree_min(BR_Tree*, Node);
+static Node tree_max(BR_Tree*, Node);
 
 
 void init_tree(BR_Tree*,int (*cmp)(KEY_TYPE,KEY_TYPE));
 int insert_key(BR_Tree *,KEY_TYPE);
 int delete_key(BR_Tree *tree, KEY_TYPE key);
+
+KEY_TYPE tree_min_key(BR_Tree *tree);
+KEY_TYPE tree_max_key(BR_Tree *tree);
+
 
 KEY_TYPE key_exist(BR_Tree *tree,KEY_TYPE key);
 

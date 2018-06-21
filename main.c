@@ -25,8 +25,9 @@ typedef struct {
 
 BR_Tree tree;
 vector pool;
+BR_Tree length_tree;
 
-size_t count;
+
 char *str1;
 char *str2;
 
@@ -84,7 +85,6 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
         if(tmp){
             delete_unit(dev1);
             dev1=tmp;
-            dev1->confidience++;
         }else{
             insert_key(&tree,dev1);
             vector_push(&pool,dev1);
@@ -94,7 +94,6 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
         if(tmp){
             delete_unit(dev2);
             dev2=tmp;
-            dev2->confidience++;
         }else{
             insert_key(&tree,dev2);
             vector_push(&pool,dev2);
@@ -104,33 +103,6 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
 }
 
 
-unit* find_next_child(unit *e){
-    unit *dev=NULL;
-    for(size_t i=0;i<e->child.size;i++){
-        dev=(unit*)e->child.list[i];
-        if(dev->flag == NOPASSED){
-            break;
-        }
-    }
-    return dev;
-}
-
-void find_path(unit* e){
-    if(e->flag==NOPASSED){
-        sds s_tmp1=sdsdup(e->p1);
-        e->flag=PASSED;
-        unit *tmp=find_next_child(e);
-        while(tmp){
-            tmp->flag=PASSED;
-            s_tmp1=sdscat(s_tmp1,&tmp->p1[K-2]);
-            tmp=find_next_child(tmp);
-        }
-
-        printf(">frag_%lu\r\n",count++);
-        puts(s_tmp1);
-        sdsfree(s_tmp1);
-    }
-}
 
 int main(int argc, char const *argv[])
 {
@@ -162,14 +134,37 @@ int main(int argc, char const *argv[])
         load_fragment(&q,FRAG_LEN,K);
         free(q.s1);
 
-        pc=npc+2;// the line end with "\r\n" orz
+        pc=npc+2;//the line end with "\r\n" orz
     }
 
     fprintf(stderr,"load edges finish\n");
-    count = 0;
-    sort(pool.list,pool.size,cmp_len,1);
+
+    // count = 0;
+    vector tmp_pool;
+    init_vector(&tmp_pool);
+
     for(size_t i=0;i<pool.size;i++){
-        find_path((unit*)pool.list[i]);
+        unit *e=pool.list[i];
+        if(e->flag!=JOINED){
+            vector_push(&tmp_pool,join(pool.list[i]));
+        }else{
+            //delete_key(&tree,e);
+            delete_unit(e);
+        }
+    }
+
+    init_tree(&length_tree,cmp_len);
+    for(size_t i=0;i<tmp_pool.size;i++){
+        unit *e=tmp_pool.list[i];
+        if(e->flag!=JOINED){
+            insert_key(&length_tree,e);
+        }else{
+            delete_unit(e);
+        }
+    }
+    while(length_tree.root!=length_tree.end){
+        unit *tmp=tree_max_key(&length_tree);
+        find_path(tmp);
     }
     return 0;
 }

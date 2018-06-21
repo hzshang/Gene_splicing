@@ -29,6 +29,15 @@ void shrink_vector(vector *v){
 	v->list=(TYPE*)realloc(v->list,sizeof(TYPE*)*v->size);
 }
 
+void delete_key_from_vector(vector *v,TYPE k){
+	size_t i=0;
+	for(;i<v->size && v->list[i]!=k;i++);
+	for(;i < v->size-1;i++){
+		v->list[i]=v->list[i+1];
+	}
+	v->size--;
+
+}
 
 void insert_vector(vector *v, TYPE key,int(*cmp)(TYPE,TYPE)){
 	alloc_room(v);

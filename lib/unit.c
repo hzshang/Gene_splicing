@@ -5,7 +5,19 @@
 #include <config.h>
 #include <vector.h>
 
+int distance(unit *x,unit *y){
+	int cnt=0;
+	size_t len=sdslen(x->p1);
+	for(int i=0;i<len && cnt <6 ;i++){
+		cnt+=x->p1[i]==y->p1[i]?0:1;
+		cnt+=x->p2[i]==y->p2[i]?0:1;
+	}
+	return cnt;
+}
 int cmp_str(void* x,void *y){
+	// if(distance(x,y) < 6){
+	// 	return 0;
+	// }
 	unit *a=x;
 	unit *b=y;
 	int ret=strcmp(a->p1,b->p1);
@@ -39,25 +51,9 @@ void init_unit(unit* dev){
 	init_vector(&dev->child);
 	dev->len=0;
 	dev->flag=NOPASSED;
-	dev->confidience=1;
 }
 
-void add_edge(unit* src,unit* dst){
-	for(int i=0;i<dst->parent.size;i++){
-		if(!cmp_str(src,dst->parent.list[i])){
-			// don't add same unit because the possibilty equals 0 almost
-			return;
-		}
-	}
-	vector_push(&dst->parent,src);
-	insert_vector(&src->child,dst,cmp_len);
 
-	size_t t_len=sdslen(src->p1)+dst->len-(K-2);
-	if( t_len > src->len){
-		src->len=t_len;
-		update_len(src);
-	}
-}
 
 void delete_unit(unit* v){
 	sdsfree(v->p1);
@@ -68,16 +64,7 @@ void delete_unit(unit* v){
 	free(v);
 }
 
-void update_len(unit *v){
-	for(size_t i=0;i<v->parent.size;i++){
-		unit *tmp=v->parent.list[i];
-		size_t t_len=sdslen(tmp->p1)+v->len-(K-2);
-		if(t_len > tmp->len){
-			tmp->len=t_len;
-			update_len(tmp);
-		}
-	}
-}
+
 
 void append_str(unit *src,char *str1,char *str2){
 	src->p1=sdscat(src->p1,str1);

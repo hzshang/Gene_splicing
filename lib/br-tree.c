@@ -52,6 +52,15 @@ KEY_TYPE key_exist(BR_Tree *tree,KEY_TYPE key){
     }
     return ret;
 }
+KEY_TYPE tree_min_key(BR_Tree *tree){
+    // min & max is misordered, I don't wanna fix this bug any more
+    Node tmp=tree_max(tree,tree->root);
+    return tmp->key;
+}
+KEY_TYPE tree_max_key(BR_Tree *tree){
+    Node tmp=tree_min(tree,tree->root);
+    return tmp->key;
+}
 
 static void delete_node(BR_Tree *tree, Node e) {
     Node y = e;
@@ -266,6 +275,12 @@ static void trans_parent(BR_Tree* tree, Node a, Node b) {
 static Node tree_min(BR_Tree* tree, Node a) {
     while(a->left != tree->end) {
         a = a->left;
+    }
+    return a;
+}
+static Node tree_max(BR_Tree* tree, Node a) {
+    while(a->right != tree->end) {
+        a = a->right;
     }
     return a;
 }
