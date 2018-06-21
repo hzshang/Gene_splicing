@@ -4,6 +4,8 @@
 #include <br-tree.h>
 
 extern BR_Tree length_tree;
+extern size_t sum;
+extern size_t s_cnt;
 size_t count;
 
 unit* join(unit *e){
@@ -12,14 +14,11 @@ unit* join(unit *e){
     }
     size_t len=sdslen(e->p1);
     sds s1=sdsnewlen(e->p1,len-1);
-    sds s2=sdsnewlen(e->p2,len-1);
     unit *tmp=e;
     unit *next;
     do{
         s1=sdscat(s1,&tmp->p1[K-2]);
-        s2=sdscat(s2,&tmp->p2[K-2]);
         tmp->flag=JOINED;
-
         next=tmp->child.list[0];
         if(next->parent.size!=1 ||next->child.size!=1){
             break;
@@ -28,26 +27,31 @@ unit* join(unit *e){
     } while(1);
 
     e->p1=sdsdup(s1);
-    e->p2=sdsdup(s2);
     e->flag=NOPASSED;
     e->child.list[0]=tmp->child.list[0];
     unit *d=tmp->child.list[0];
     delete_key_from_vector(&d->parent,tmp);
     vector_push(&d->parent,e);
     sdsfree(s1);
-    sdsfree(s2);
     return e;
 }
 
 void update_len(unit *v){
+    v->flag=PASSED;
     for(size_t i=0;i<v->parent.size;i++){
         unit *tmp=v->parent.list[i];
         size_t t_len=sdslen(tmp->p1)+v->len-(K-2);
-        if(t_len > tmp->len){
+        // if(tmp->flag==PASSED){
+        //     // delete_key_from_vector(&tmp->child,v);
+        //     // delete_key_from_vector(&v->parent,tmp);
+        //     tmp->len=sdslen(tmp->p1);
+        // }
+        if(tmp->flag!=PASSED && t_len > tmp->len){
             tmp->len=t_len;
             update_len(tmp);
         }
     }
+    v->flag=NOPASSED;
 }
 
 void add_edge(unit* src,unit* dst){
@@ -115,7 +119,7 @@ void disable_node(unit *e){
 
 void find_path(unit* e){
 
-    sds s_tmp1=sdsdup(e->p1);
+    sds s_tmp=sdsdup(e->p1);
     disable_node(e);
     unit *p=e;
     unit *tmp=find_next_child(p);
@@ -124,14 +128,21 @@ void find_path(unit* e){
         delete_key_from_vector(&p->child,tmp);
         delete_key_from_vector(&tmp->parent,p);
         disable_node(tmp);
-        s_tmp1=sdscat(s_tmp1,&tmp->p1[K-2]);
+        s_tmp=sdscat(s_tmp,&tmp->p1[K-2]);
         p=tmp;
         tmp=find_next_child(p);
     }
+    size_t tmp_len=sdslen(s_tmp);
+    if(tmp_len > 1500){
+        sum+=sdslen(s_tmp);
+        s_cnt++;
+    }
+    if(tmp_len > 99){
+        printf(">frag_%lu\r\n",count++);
+        puts(s_tmp);
+    }
 
-    printf(">frag_%lu\r\n",count++);
-    puts(s_tmp1);
-    sdsfree(s_tmp1);
+    sdsfree(s_tmp);
 }
 
 

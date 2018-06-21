@@ -18,7 +18,6 @@
 
 struct _unit{
     sds p1;
-    sds p2;
     vector parent;
     vector child;
     size_t len;
@@ -34,7 +33,7 @@ void init_unit(unit*);
 
 void delete_unit(unit*);
 
-void append_str(unit *src,char *str1,char *str2);
-void append_nchar(unit *src,char *str1,char*str2,size_t len);
+void append_str(unit *src,char *str);
+void append_nchar(unit *src,char *str,size_t len);
 
 #endif /* !UNIT_H */

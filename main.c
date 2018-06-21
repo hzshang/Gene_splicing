@@ -17,20 +17,14 @@
 #include <graphics.h>
 #include <sort.h>
 
-typedef struct {
-    char *s1;
-    char *s2;
-}pair;
-
-
 BR_Tree tree;
 vector pool;
 BR_Tree length_tree;
 
-
 char *str1;
 char *str2;
-
+size_t sum;
+size_t s_cnt;
 void reverse(char *dest,const char *src,size_t len){
     for(int i=0;i<len-1;i++){
         switch(src[len-2-i]){
@@ -67,7 +61,7 @@ void load_file(){
     }
 }
 
-void load_fragment(pair *p,size_t frag_len,size_t k){
+void load_fragment(char *p,size_t frag_len,size_t k){
     for(int i=0;i<frag_len-k+1;i++){
 
         unit *dev1=(unit*)malloc(sizeof(unit));
@@ -75,9 +69,10 @@ void load_fragment(pair *p,size_t frag_len,size_t k){
         init_unit(dev1);
         init_unit(dev2);
 
-        append_nchar(dev1,p->s1+i,p->s2+i,k-1);
+        dev1->p1=sdscatlen(dev1->p1,p+i,k-1);
         dev1->len=k-1;
-        append_nchar(dev2,p->s1+i+1,p->s2+i+1,k-1);
+
+        dev2->p1=sdscatlen(dev2->p1,p+i+1,k-1);
         dev2->len=k-1;
 
         unit* tmp;
@@ -119,20 +114,20 @@ int main(int argc, char const *argv[])
         npc=pc+FRAG_LEN;
         str1[npc]='\x00';
         str2[npc]='\x00';
+        char *ptr;
 
-        pair p;
-        p.s1=&str1[pc];
-        p.s2=(char*)malloc(FRAG_LEN+1);
-        reverse(p.s2,&str2[pc],FRAG_LEN+1);
-        load_fragment(&p,FRAG_LEN,K);
-        free(p.s2);
+        load_fragment(&str1[pc],FRAG_LEN,K);
+        ptr=(char*)malloc(FRAG_LEN+1);
+        reverse(ptr,&str1[pc],FRAG_LEN+1);
+        load_fragment(ptr,FRAG_LEN,K);
+        free(ptr);
 
-        pair q;
-        q.s1=(char*)malloc(FRAG_LEN+1);
-        q.s2=&str2[pc];
-        reverse(q.s1,&str1[pc],FRAG_LEN+1);
-        load_fragment(&q,FRAG_LEN,K);
-        free(q.s1);
+        load_fragment(&str2[pc],FRAG_LEN,K);
+        ptr=(char*)malloc(FRAG_LEN+1);
+
+        reverse(ptr,&str2[pc],FRAG_LEN+1);
+        load_fragment(ptr,FRAG_LEN,K);
+        free(ptr);
 
         pc=npc+2;//the line end with "\r\n" orz
     }
@@ -148,7 +143,6 @@ int main(int argc, char const *argv[])
         if(e->flag!=JOINED){
             vector_push(&tmp_pool,join(pool.list[i]));
         }else{
-            //delete_key(&tree,e);
             delete_unit(e);
         }
     }
@@ -166,6 +160,7 @@ int main(int argc, char const *argv[])
         unit *tmp=tree_max_key(&length_tree);
         find_path(tmp);
     }
+    fprintf(stderr, "avg length:%f\n",sum*1.0/s_cnt);
     return 0;
 }
 

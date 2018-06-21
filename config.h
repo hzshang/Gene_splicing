@@ -7,7 +7,7 @@
 #define FILE1 "data/data1/short_1.fasta"
 #define FILE2 "data/data1/short_2.fasta"
 
-#define K 30
+#define K 38
 #define FRAG_LEN 100
 #define pair_distance 500
 #elif DATA2
@@ -15,8 +15,8 @@
 #define FILE1 "data/data2/short_1.fasta"
 #define FILE2 "data/data2/short_2.fasta"
 
-#define K 30
-#define FRAG_LEN 1000
+#define K 37
+#define FRAG_LEN 100
 #define pair_distance 500
 
 #elif DATA3
