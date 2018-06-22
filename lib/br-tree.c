@@ -62,6 +62,16 @@ KEY_TYPE tree_max_key(BR_Tree *tree){
     return tmp->key;
 }
 
+void delete_rb_tree(BR_Tree *tree){
+    while(tree->root!=tree->end){
+        Node t=tree->root;
+        delete_node(tree,t);
+        free(t);
+    }
+    free(tree->end);
+    tree->end=tree->root=NULL;
+    tree->cmp=NULL;
+}
 static void delete_node(BR_Tree *tree, Node e) {
     Node y = e;
     Node x;

@@ -46,7 +46,8 @@ void init_unit(unit* dev){
 	init_vector(&dev->parent);
 	init_vector(&dev->child);
 	dev->len=0;
-	dev->flag=NOPASSED;
+	dev->flag=WORK;
+	dev->conf=1;
 }
 
 

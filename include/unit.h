@@ -13,8 +13,9 @@
 #define MIN_SIZE 4
 
 #define PASSED 0
-#define NOPASSED 1
+#define WORK 1
 #define JOINED 2
+#define MISTAKE 3
 
 struct _unit{
     sds p1;
@@ -22,6 +23,7 @@ struct _unit{
     vector child;
     size_t len;
     int flag;
+    int conf;
 };
 
 typedef struct _unit unit;

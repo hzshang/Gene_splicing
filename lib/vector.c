@@ -32,11 +32,12 @@ void shrink_vector(vector *v){
 void delete_key_from_vector(vector *v,TYPE k){
 	size_t i=0;
 	for(;i<v->size && v->list[i]!=k;i++);
-	for(;i < v->size-1;i++){
-		v->list[i]=v->list[i+1];
+	if(i!=v->size){
+		for(;i < v->size-1;i++){
+			v->list[i]=v->list[i+1];
+		}
+		v->size--;
 	}
-	v->size--;
-
 }
 
 void insert_vector(vector *v, TYPE key,int(*cmp)(TYPE,TYPE)){
@@ -52,4 +53,13 @@ void insert_vector(vector *v, TYPE key,int(*cmp)(TYPE,TYPE)){
 	}
 	v->list[i]=key;
 	v->size++;
+}
+
+int vector_exist_key(vector *v,TYPE key){
+	for(size_t i=0;i<v->size;i++){
+		if(v->list[i]==key){
+			return 1;
+		}
+	}
+	return 0;
 }

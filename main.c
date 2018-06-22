@@ -79,6 +79,7 @@ void load_fragment(char *p,size_t frag_len,size_t k){
         tmp=key_exist(&tree,dev1);
         if(tmp){
             delete_unit(dev1);
+            tmp->conf++;
             dev1=tmp;
         }else{
             insert_key(&tree,dev1);
@@ -88,6 +89,7 @@ void load_fragment(char *p,size_t frag_len,size_t k){
         tmp=key_exist(&tree,dev2);
         if(tmp){
             delete_unit(dev2);
+            tmp->conf++;
             dev2=tmp;
         }else{
             insert_key(&tree,dev2);
@@ -133,29 +135,42 @@ int main(int argc, char const *argv[])
     }
 
     fprintf(stderr,"load edges finish\n");
+    // delete hash tree
+    delete_rb_tree(&tree);
 
-    // count = 0;
+    for(size_t i=0;i<pool.size;i++){
+        unit *tmp=pool.list[i];
+        if(tmp->flag==WORK && tmp->child.size>1)
+            delete_misorder(pool.list[i]);
+    }
+
     vector tmp_pool;
     init_vector(&tmp_pool);
 
     for(size_t i=0;i<pool.size;i++){
         unit *e=pool.list[i];
-        if(e->flag!=JOINED){
+        if(e->flag==WORK){
             vector_push(&tmp_pool,join(pool.list[i]));
         }else{
             delete_unit(e);
         }
     }
+    // free pool
+    delete_vector(&pool);
 
     init_tree(&length_tree,cmp_len);
     for(size_t i=0;i<tmp_pool.size;i++){
         unit *e=tmp_pool.list[i];
-        if(e->flag!=JOINED){
+        if(e->flag==WORK){
             insert_key(&length_tree,e);
-        }else{
+        }
+        else{
             delete_unit(e);
         }
     }
+    // delete tmp_pool
+    delete_vector(&tmp_pool);
+
     while(length_tree.root!=length_tree.end){
         unit *tmp=tree_max_key(&length_tree);
         find_path(tmp);

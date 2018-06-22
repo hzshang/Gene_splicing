@@ -27,7 +27,7 @@ unit* join(unit *e){
     } while(1);
 
     e->p1=sdsdup(s1);
-    e->flag=NOPASSED;
+    e->flag=WORK;
     e->child.list[0]=tmp->child.list[0];
     unit *d=tmp->child.list[0];
     delete_key_from_vector(&d->parent,tmp);
@@ -41,17 +41,12 @@ void update_len(unit *v){
     for(size_t i=0;i<v->parent.size;i++){
         unit *tmp=v->parent.list[i];
         size_t t_len=sdslen(tmp->p1)+v->len-(K-2);
-        // if(tmp->flag==PASSED){
-        //     // delete_key_from_vector(&tmp->child,v);
-        //     // delete_key_from_vector(&v->parent,tmp);
-        //     tmp->len=sdslen(tmp->p1);
-        // }
         if(tmp->flag!=PASSED && t_len > tmp->len){
             tmp->len=t_len;
             update_len(tmp);
         }
     }
-    v->flag=NOPASSED;
+    v->flag=WORK;
 }
 
 void add_edge(unit* src,unit* dst){
@@ -92,8 +87,6 @@ size_t max_len(unit *p){
 void decrease_len(unit *e){
     for(size_t i=0;i<e->parent.size;i++){
         unit *p=e->parent.list[i];
-        // delete_key_from_vector(&p->child,e);
-        // delete_key_from_vector(&e->parent,p);
         size_t max=max_len(p);
         if(p->len > max){
             delete_key(&length_tree,p);
@@ -101,8 +94,6 @@ void decrease_len(unit *e){
             insert_key(&length_tree,p);
             decrease_len(p);
         }
-        // vector_push(&e->parent,p);
-        // insert_vector(&p->child,e,cmp_len);
     }
 }
 
@@ -118,12 +109,10 @@ void disable_node(unit *e){
 }
 
 void find_path(unit* e){
-
     sds s_tmp=sdsdup(e->p1);
     disable_node(e);
     unit *p=e;
     unit *tmp=find_next_child(p);
-
     while(tmp){
         delete_key_from_vector(&p->child,tmp);
         delete_key_from_vector(&tmp->parent,p);
@@ -137,12 +126,80 @@ void find_path(unit* e){
         sum+=sdslen(s_tmp);
         s_cnt++;
     }
-    if(tmp_len > 99){
-        printf(">frag_%lu\r\n",count++);
-        puts(s_tmp);
-    }
-
+    printf(">frag_%lu\r\n",count++);
+    puts(s_tmp);
     sdsfree(s_tmp);
 }
+
+int distance_of_unit(unit *a,unit *b){
+    int cnt=0;
+    int len1=sdslen(a->p1);
+    int len2=sdslen(b->p1);
+    int len=len1>len2?len2:len1;
+    for(int i=0;i<len;i++){
+        cnt+=a->p1[i]==b->p1[i]?0:1;
+    }
+    return cnt;
+}
+
+unit* combine_unit(unit *a,unit *b){
+    unit *dst,*src;
+    if(a->conf> b->conf){
+        dst=a;
+        src=b;
+    }else{
+        dst=b;
+        src=a;
+    }
+    size_t len=src->child.size;
+    for(int i=0;i<len;i++){
+        // don't care len, it's may be same
+        unit *tmp=src->child.list[i];
+        delete_key_from_vector(&tmp->parent,src);
+        if(!vector_exist_key(&dst->child,tmp)){
+            insert_vector(&dst->child,tmp,cmp_len);
+        }
+        if(!vector_exist_key(&tmp->parent,dst)){
+            vector_push(&tmp->parent,dst);
+        }
+    }
+    len=src->parent.size;
+    for(int i=0;i<len;i++){
+        unit *tmp=src->parent.list[i];
+        delete_key_from_vector(&tmp->child,src);
+        if(!vector_exist_key(&tmp->child,dst)){
+            insert_vector(&tmp->child,dst,cmp_len);
+        }
+        if(!vector_exist_key(&dst->parent,tmp)){
+            vector_push(&dst->parent,tmp);
+        }
+    }
+    src->flag=MISTAKE;
+    return dst;
+}
+
+void delete_misorder(unit *e){
+    for(int i=0;i<e->child.size;i++){
+        for(int j=i+1;j<e->child.size;j++){
+
+            unit *a=e->child.list[i];
+            unit *b=e->child.list[j];
+            if(a->flag==WORK && b->flag==WORK && distance_of_unit(a,b)<6){
+                delete_misorder(combine_unit(a,b));
+                i=0;
+                j=0;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
 
 

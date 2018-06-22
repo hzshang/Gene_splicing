@@ -9,4 +9,6 @@ void disable_node(unit *e);
 void add_edge(unit* src,unit* dst);
 unit* find_next_child(unit *e);
 void find_path(unit* e);
+void delete_misorder(unit *e);
+int distance_of_unit(unit *a,unit *b);
 #endif
