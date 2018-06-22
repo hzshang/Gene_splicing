@@ -6,7 +6,7 @@
 
 
 LIB_SRC=$(wildcard lib/*.c)
-CFLAGS=-Iinclude -I. -g -D DATA2#$(target)
+CFLAGS=-Iinclude -I. -g -D DATA3#$(target)
 
 SRC_FILES := $(wildcard lib/*.c)
 OBJ_FILES := $(patsubst %.c,%.o,$(SRC_FILES))

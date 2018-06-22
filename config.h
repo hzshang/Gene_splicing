@@ -21,7 +21,12 @@
 
 #elif DATA3
 // DATA3 config
+#define FILE1 "data/data3/short_1.fasta"
+#define FILE2 "data/data3/short_2.fasta"
 
+#define K 27
+#define FRAG_LEN 100
+#define pair_distance 500
 #elif DATA4
 // DATA4 config
 
