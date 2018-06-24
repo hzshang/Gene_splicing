@@ -122,7 +122,7 @@ void find_path(unit* e){
         tmp=find_next_child(p);
     }
     size_t tmp_len=sdslen(s_tmp);
-    if(tmp_len > 1500){
+    if(tmp_len > MID_CMP ){
         sum+=sdslen(s_tmp);
         s_cnt++;
     }
@@ -184,7 +184,7 @@ void delete_misorder(unit *e){
 
             unit *a=e->child.list[i];
             unit *b=e->child.list[j];
-            if(a->flag==WORK && b->flag==WORK && distance_of_unit(a,b)<6){
+            if(a->flag==WORK && b->flag==WORK && distance_of_unit(a,b)<DIS){
                 delete_misorder(combine_unit(a,b));
                 i=0;
                 j=0;
@@ -192,14 +192,3 @@ void delete_misorder(unit *e){
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-

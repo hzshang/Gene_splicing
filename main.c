@@ -178,5 +178,3 @@ int main(int argc, char const *argv[])
     fprintf(stderr, "avg length:%f\n",sum*1.0/s_cnt);
     return 0;
 }
-
-
