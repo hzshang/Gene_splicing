@@ -67,6 +67,12 @@ void add_edge(unit* src,unit* dst){
 }
 
 unit* find_next_child(unit *e){
+    // for(size_t i=0;i<e->child.size;i++){
+    //     unit *tmp=e->child.list[i];
+    //     if(tmp->flag==WORK)
+    //         return tmp;
+    // }
+    // return NULL;
     return e->child.size>0?e->child.list[0]:NULL;
 }
 

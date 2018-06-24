@@ -162,6 +162,7 @@ int main(int argc, char const *argv[])
     for(size_t i=0;i<tmp_pool.size;i++){
         unit *e=tmp_pool.list[i];
         if(e->flag==WORK){
+            // vector_push()
             insert_key(&length_tree,e);
         }
         else{
