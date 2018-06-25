@@ -6,13 +6,10 @@
 
 
 LIB_SRC=$(wildcard lib/*.c)
-CFLAGS=-Iinclude -I. -O3 -D DATA4#$(target)
+CFLAGS=-Iinclude -I. -O3 -D $(target)
 
 SRC_FILES := $(wildcard lib/*.c)
 OBJ_FILES := $(patsubst %.c,%.o,$(SRC_FILES))
-
-
-
 
 all: graphics.c main.c libpj.o
 	gcc $^ $(CFLAGS) -o main
